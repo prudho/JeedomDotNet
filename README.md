@@ -1,7 +1,7 @@
 # JeedomDotNet
 JeedomDotNet is an experimental DotNet library for Jeedom, written in C#.
 
-Current version is 0.0.0.1 (let's call it a proof-of-concept). By using it you can expect crashes, and a lot of frustration. Oh, and some things could actually work fine too, but that's not guaranteed.
+Current version is 0.0.0.2 (let's call it a proof-of-concept). By using it you can expect crashes, and a lot of frustration. Oh, and some things could actually work fine too, but that's not guaranteed.
 
 Anyway, please keep in mind that it's just an early version made by a hobbyist.
 
