@@ -48,13 +48,17 @@
   <ItemGroup>
     <Compile Include="Command.cs" />
     <Compile Include="Commands.cs" />
+    <Compile Include="EqLogics.cs" />
     <Compile Include="Jeedom.cs" />
     <Compile Include="HttpBuildQueryHelper.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Messages.cs" />
+    <Compile Include="Object.cs" />
+    <Compile Include="Objects.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Plugins.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\BoolConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
