@@ -1,4 +1,6 @@
 .vs/
 JeedomDotNet/bin
 JeedomDotNet/obj
+JeedomTester/bin
+JeedomTester/obj
 packages/

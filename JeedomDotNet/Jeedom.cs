@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using JeedomDotNet.Core;
+using JeedomDotNet.Entities;
 
 namespace JeedomDotNet
 {
@@ -185,7 +187,7 @@ namespace JeedomDotNet
             this._port = port;
             this._api_key = apiKey;
             this._usessl = usessl;
-            this._allowSelfSignedCert = allow_self_signed_cert;
+            this._allowSelfSignedCert = allow_self_signed_cert;       
 
             this.Init();
         }
@@ -219,15 +221,21 @@ namespace JeedomDotNet
         /// If not false</returns>
         public bool Ping()
         {
-            string result = RPCCommand("ping");
+            Core.RPCCommand rpc = new Core.RPCCommand(this, "ping");
 
-            JObject googleSearch = JObject.Parse(result);
+            if (rpc.Send())
+            {
+                JObject googleSearch = JObject.Parse(rpc.Response);
 
-            IEnumerable<JToken> results = googleSearch["result"];
+                IEnumerable<JToken> results = googleSearch["result"];
 
-            return (results.ToString() == "pong");
+                return (results.ToString() == "pong");
+            }
+            else
+            {
+                return false;
+            }
         }
-
 
         /// <summary>
         /// Get the Jeedom version
@@ -235,13 +243,20 @@ namespace JeedomDotNet
         /// <returns>Jeedom version</returns>
         public string GetVersion()
         {
-            string result = RPCCommand("version");
+            Core.RPCCommand rpc = new Core.RPCCommand(this, "version");
 
-            JObject googleSearch = JObject.Parse(result);
+            if (rpc.Send())
+            {
+                JObject googleSearch = JObject.Parse(rpc.Response);
 
-            IEnumerable<JToken> results = googleSearch["result"];
+                IEnumerable<JToken> results = googleSearch["result"];
 
-            return results.ToString();
+                return results.ToString();
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
         public string Scenario(int id, ScenarioType scenario)
@@ -275,7 +290,12 @@ namespace JeedomDotNet
                 { "id", id }
             };
 
-            return Query(command);
+            HTTPQuery query = new HTTPQuery(this, command);
+
+            if (query.Send())
+                return query.Response;
+            else
+                return "";
         }
 
         public string Command(int id)
@@ -287,131 +307,12 @@ namespace JeedomDotNet
                 { "id", id }
             };
 
-            return Query(command);
-        }
+            HTTPQuery query = new HTTPQuery(this, command);
 
-        public Command GetCommand(int id)
-        {
-            string result = RPCCommand("cmd::byId", new Dictionary<string, object>() { { "id", id } });
-
-            JObject googleSearch = JObject.Parse(result);
-
-            IEnumerable<JToken> results = googleSearch["result"];
-
-            return JsonConvert.DeserializeObject<Command>(results.ToString());
-        }
-
-        /// <summary>
-        /// Send an RPC command to the Jeedom controler
-        /// </summary>
-        /// <param name="method">The method name to call</param>
-        /// <returns>TODO</returns>
-        public string RPCCommand(string method)
-        {
-            return RPCCommand(method, new Dictionary<string, object>());
-        }
-
-        /// <summary>
-        /// Send an RPC command to the Jeedom controler
-        /// </summary>
-        /// <param name="method">The method name to call</param>
-        /// <param name="vars">A [string, object] dictionnary that contains variables to send to the Jeedom controler</param>
-        /// <returns>TODO</returns>
-        public string RPCCommand(string method, Dictionary<string, object> vars)
-        {
-            // Our RPC command "object"
-            Dictionary<string, object> request = new Dictionary<string, object>()
-            {
-                { "jsonrpc", "2.0" },
-                { "id", new Random().Next(1,9999) },
-                { "method", method },
-                { "params", vars }
-            };
-
-            // We inject the API key in the command parameters
-            Dictionary<string, object> par = (Dictionary<string, object>)request["params"];
-            par.Add("apikey", this.API_Key);
-
-            // Our RPC command is encapsulated by JSON...
-            Dictionary<string, object> command = new Dictionary<string, object>()
-            {
-                { "request", JsonConvert.SerializeObject(request) }
-            };
-
-            // And send by POST request to the Jeedom controler
-            string result = Query(command);
-
-            // Write the command result to Visual Studio
-            Debug.Print(result);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Execute a POST request to the Jeedom controler
-        /// </summary>
-        /// <param name="args">A [string, object] dictionnary that contains variables to send to the Jeedom controler</param>
-        /// <returns>TODO</returns>
-        private string Query(Dictionary<string, object> args)
-        {
-            // Formatting the POST request using HttpBuildQueryHelper
-            // Thanks Roland Mai !!!
-            string mystring = HttpBuildQueryHelper.FormatDictionary(args);
-
-            // Our response string
-            string response = string.Empty;
-
-            try
-            {
-                byte[] byteArray = Encoding.UTF8.GetBytes(mystring);
-
-                // Certificate verification need to be disabled when we use a self-signed certificate
-                // If not an exception occurs
-                if (_allowSelfSignedCert)
-                    ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
-
-                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this._url);
-                webRequest.Method = "POST";
-                webRequest.ContentType = "application/x-www-form-urlencoded";
-                webRequest.ContentLength = byteArray.Length;
-
-
-                // Sending our POST request
-                using (Stream webpageStream = webRequest.GetRequestStream())
-                {
-                    webpageStream.Write(byteArray, 0, byteArray.Length);
-                }
-
-                // Reading the response
-                using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse())
-                {
-                    using (StreamReader reader = new StreamReader(webResponse.GetResponseStream()))
-                    {
-                        response = reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Write output to Visual Studio
-                Debug.Write(ex.Message);
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Callback that bypass SSL certificate verification
-        /// Usefull when you use a self-signed certificate
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="certification"></param>
-        /// <param name="chain"></param>
-        /// <param name="sslPolicyErrors"></param>
-        /// <returns></returns>
-        private bool AcceptAllCertifications(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certification, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
-        {
-            return true;
+            if (query.Send())
+                return query.Response;
+            else
+                return "";
         }
     }
 }

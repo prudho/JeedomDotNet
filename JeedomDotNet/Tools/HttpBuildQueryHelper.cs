@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Web;
 
-namespace JeedomDotNet
+namespace JeedomDotNet.Tools
 {
     public class HttpBuildQueryHelper
     {
