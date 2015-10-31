@@ -4,23 +4,41 @@ using System.Collections.Generic;
 
 namespace JeedomDotNet.Entities
 {
-    public class EqLogics : List<EqLogic>
+    public class EqLogics : List<EqLogic>, IEntitiesCollection
     {
         private Jeedom _jee;
+        private JeedomEntities _entities;
 
-        public EqLogics(Jeedom jee)
+        private bool _loaded;
+        private string _error;
+        private string _innerJson;
+
+        public bool Loaded { get { return _loaded; } }
+        public string Error { get { return _error; } }
+        public string InnerJson { get { return this._innerJson; } }
+
+        public EqLogics(Jeedom jee, JeedomEntities entities)
         {
-            this._jee = jee;
+            _jee = jee;
+            _entities = entities;
+
+            Load();
         }
 
         public void Load()
         {
-            this.Clear();
+            Clear();
 
-            Core.RPCCommand rpc = new Core.RPCCommand(this._jee, "eqLogic::all");
+            _error = string.Empty;
 
-            if (rpc.Send())
+            Core.RPCCommand rpc = new Core.RPCCommand(_jee, "eqLogic::all");
+
+            bool result = rpc.Execute();
+
+            if (result)
             {
+                _innerJson = rpc.Response;
+
                 JObject googleSearch = JObject.Parse(rpc.Response);
 
                 IEnumerable<JToken> results = googleSearch["result"].Children();
@@ -28,9 +46,18 @@ namespace JeedomDotNet.Entities
                 foreach (JToken res in results)
                 {
                     EqLogic searchResult = JsonConvert.DeserializeObject<EqLogic>(res.ToString());
-                    this.Add(searchResult);
+
+                    searchResult.BaseCollection = _entities.Objects;
+
+                    Add(searchResult);
                 }
             }
+            else
+            {
+                _error = rpc.Error;
+            }
+
+            _loaded = result;
         }
     }
 }

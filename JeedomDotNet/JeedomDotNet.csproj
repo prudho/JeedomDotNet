@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JeedomDotNet</RootNamespace>
     <AssemblyName>JeedomDotNet</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -48,10 +48,12 @@
   <ItemGroup>
     <Compile Include="Core\HTTPQuery.cs" />
     <Compile Include="Core\RPCCommand.cs" />
+    <Compile Include="Entities.cs" />
     <Compile Include="Entities\Command.cs" />
     <Compile Include="Entities\Commands.cs" />
     <Compile Include="Entities\EqLogic.cs" />
     <Compile Include="Entities\EqLogics.cs" />
+    <Compile Include="Entities\IEntitiesCollection.cs" />
     <Compile Include="Jeedom.cs" />
     <Compile Include="Tools\HttpBuildQueryHelper.cs" />
     <Compile Include="Entities\Message.cs" />

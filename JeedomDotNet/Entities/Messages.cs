@@ -4,22 +4,34 @@ using System.Collections.Generic;
 
 namespace JeedomDotNet.Entities
 {
-    public class Messages : List<Message>
+    public class Messages : List<Message>, IEntitiesCollection
     {
         private Jeedom _jee;
 
+        private bool _loaded;
+        private string _error;
+
+        public bool Loaded { get { return _loaded; } }
+        public string Error { get { return _error; } }
+
         public Messages(Jeedom jee)
         {
-            this._jee = jee;
+            _jee = jee;
+
+            Load();
         }
 
         public void Load()
         {
-            this.Clear();
+            Clear();
 
-            Core.RPCCommand rpc = new Core.RPCCommand(this._jee, "message::all");
+            _error = string.Empty;
 
-            if (rpc.Send())
+            Core.RPCCommand rpc = new Core.RPCCommand(_jee, "message::all");
+
+            bool result = rpc.Execute();
+
+            if (result)
             {
                 JObject googleSearch = JObject.Parse(rpc.Response);
 
@@ -28,17 +40,23 @@ namespace JeedomDotNet.Entities
                 foreach (JToken res in results)
                 {
                     Message searchResult = JsonConvert.DeserializeObject<Message>(res.ToString());
-                    this.Add(searchResult);
+                    Add(searchResult);
                 }
             }
+            else
+            {
+                _error = rpc.Error;
+            }
+
+            _loaded = result;
         }
 
         public bool Empty()
         {
 
-            Core.RPCCommand rpc = new Core.RPCCommand(this._jee, "message::removeAll");
+            Core.RPCCommand rpc = new Core.RPCCommand(_jee, "message::removeAll");
 
-            if (rpc.Send())
+            if (rpc.Execute())
             {
                 JObject googleSearch = JObject.Parse(rpc.Response);
 

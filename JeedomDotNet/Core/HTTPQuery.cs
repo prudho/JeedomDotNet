@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using JeedomDotNet.Tools;
 
 namespace JeedomDotNet.Core
 {
@@ -14,23 +15,20 @@ namespace JeedomDotNet.Core
         private Dictionary<string, object> _args;
         private string _query;
         private string _response;
+        private string _error;
         private Jeedom _jeedom;
 
-        public event ResponseHandler OnResponse;
-        public delegate void ResponseHandler(string message);
-
-        public string Response { get { return this._response; } }
+        public string Error { get { return _error; } }
+        public string Response { get { return _response; } }
 
         public HTTPQuery(Jeedom jee, Dictionary<string, object> args)
         {
-            this._response = string.Empty;
-
-            this._args = args;
-            this._jeedom = jee;
+            _args = args;
+            _jeedom = jee;
 
             // Formatting the POST request using HttpBuildQueryHelper
             // Thanks Roland Mai !!!
-            _query = Tools.HttpBuildQueryHelper.FormatDictionary(args);
+            _query = HttpBuildQueryHelper.FormatDictionary(args);
         }
 
 
@@ -38,11 +36,12 @@ namespace JeedomDotNet.Core
         /// Send a POST request to the Jeedom controler
         /// </summary>
         /// <returns>True if query was sended and answered, false otherwise</returns>
-        public bool Send()
+        public bool Execute()
         {
             bool result = false;
 
-            this._response = string.Empty;
+            _response = string.Empty;
+            _error = string.Empty;
 
             try
             {
@@ -50,10 +49,10 @@ namespace JeedomDotNet.Core
 
                 // Certificate verification need to be disabled when we use a self-signed certificate
                 // If not an exception occurs
-                if (_jeedom.AllowSelfSignedCertificate)
-                    ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(Tools.Misc.AcceptAllCertifications);
+                if (_jeedom._allowSelfSignedCert)
+                    ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(Misc.AcceptAllCertifications);
 
-                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(_jeedom.URL);
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(_jeedom._url);
                 webRequest.Method = "POST";
                 webRequest.ContentType = "application/x-www-form-urlencoded";
                 webRequest.ContentLength = byteArray.Length;
@@ -70,21 +69,30 @@ namespace JeedomDotNet.Core
                     using (StreamReader reader = new StreamReader(webResponse.GetResponseStream()))
                     {
                         _response = reader.ReadToEnd();
-                        OnResponse(_response);
 
-                        result = true;
+                        _jeedom.Log(_response);
+
+                        JObject googleSearch = JObject.Parse(_response);
+
+                        IEnumerable<JToken> results = googleSearch["error"];
+
+                        if (results != null)
+                        {
+                            _error = googleSearch["error"]["message"].ToString();
+                        }
+                        else
+                        {
+                            result = true;
+                        }
                     }
                 }
-            }
-            catch (WebException webex)
-            {
-                // Write output to Visual Studio
-                Debug.Write(webex.Message);
             }
             catch (Exception ex)
             {
                 // Write output to Visual Studio
                 Debug.Write(ex.Message);
+
+                _error = ex.Message;
             }
 
             return result;

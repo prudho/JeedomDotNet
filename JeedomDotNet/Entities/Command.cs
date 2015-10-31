@@ -61,22 +61,55 @@ namespace JeedomDotNet.Entities
 
     public class Command
     {
-        public string id { get; set; }
-        public string logicalId { get; set; }
-        public string eqType { get; set; }
-        public string name { get; set; }
-        public string order { get; set; }
-        public string type { get; set; }
-        public string subType { get; set; }
-        public string eqLogic_id { get; set; }
-        public string isHistorized { get; set; }
-        public string unite { get; set; }
+        [JsonProperty(PropertyName = "id")]
+        public int ID { get; set; }
+
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+
+        [JsonProperty(PropertyName = "logicalId")]
+        public string LogicalID { get; set; }
+
+        [JsonProperty(PropertyName = "eqType")]
+        public string EqType { get; set; }
+
+        [JsonProperty(PropertyName = "order")]
+        public int Order { get; set; }
+
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
+        [JsonProperty(PropertyName = "subType")]
+        public string SubType { get; set; }
+
+        [JsonProperty(PropertyName = "eqLogic_id")]
+        public int EqLogicID { get; set; }
+
+        [JsonProperty(PropertyName = "isHistorized")]
+        [JsonConverter(typeof(Tools.BoolConverter))]
+        public bool IsHistorized { get; set; }
+
+        [JsonProperty(PropertyName = "isVisible")]
+        [JsonConverter(typeof(Tools.BoolConverter))]
+        public bool Visible { get; set; }
+
+        [JsonProperty(PropertyName = "unite")]
+        public string Unite { get; set; }
+
         public object cache { get; set; }
         public string eventOnly { get; set; }
         public Configuration configuration { get; set; }
         public Template template { get; set; }
         public Display display { get; set; }
         public string value { get; set; }
-        public string isVisible { get; set; }
+
+        public EqLogic Parent { get { return getParent(); } }
+
+        internal EqLogics BaseCollection;
+
+        private EqLogic getParent()
+        {
+            return BaseCollection.Find(x => x.ID == EqLogicID);
+        }
     }
 }

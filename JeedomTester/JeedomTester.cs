@@ -1,12 +1,6 @@
 ﻿using JeedomDotNet;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace JeedomTester
@@ -53,29 +47,90 @@ namespace JeedomTester
             {
                 jee = new Jeedom(text_Host.Text, text_API_Key.Text, check_Use_SSL.Checked, check_Bypass_SSL.Checked);
             }
+
+            jee.OnResponse += Jee_OnResponse;
+
+            jee.Load();
         }
 
         private void button_Ping_Click(object sender, EventArgs e)
         {
             this.Init();
 
-            //jee.OnResponse += Jee_OnResponse;
-
-            if (jee.Ping())
+            if (jee.Loaded)
             {
-                string version = jee.GetVersion();
+                string version = jee.Version;
 
-                MessageBox.Show("Connexion OK !\r\n\r\nJeedom version : " + version);
+                MessageBox.Show("Connexion OK !\r\n\r\nJeedom version : " + version, "Connexion OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                entitiesGroupBox.Enabled = true;
             }
             else
             {
-                MessageBox.Show("Timeout !");
+                MessageBox.Show("Erreur à la connexion : " + jee.Error, "Echec de connexion", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                entitiesGroupBox.Enabled = false;
             }
         }
 
         private void Jee_OnResponse(string message)
         {
-            MessageBox.Show(message);
+            text_Raw_Json.Text += JsonHelper.FormatJson(message) + "\r\n";
+        }
+
+        private void button_Get_Objects_Click(object sender, EventArgs e)
+        {
+            Init();
+
+            text_Raw_Json.Text = JsonHelper.FormatJson(jee.Entities.Objects.InnerJson);
+            tree_Json.Nodes.Clear();
+            tree_Objects.Nodes.Clear();
+
+            tree_Json.Nodes.Add(JsonHelper.Json2Tree(JObject.Parse(jee.Entities.Objects.InnerJson)));
+            tree_Objects.Nodes.Add(ObjectHelper.CreateTree(jee.Entities.Objects));
+        }
+
+        private void button_Get_Plugins_Click(object sender, EventArgs e)
+        {
+            Init();
+
+            text_Raw_Json.Text = JsonHelper.FormatJson(jee.Entities.Plugins.InnerJson);
+            tree_Json.Nodes.Clear();
+            tree_Objects.Nodes.Clear();
+
+            tree_Json.Nodes.Add(JsonHelper.Json2Tree(JObject.Parse(jee.Entities.Plugins.InnerJson)));
+            tree_Objects.Nodes.Add(ObjectHelper.CreateTree(jee.Entities.Plugins));
+        }
+
+        private void button_Get_eqlogics_Click(object sender, EventArgs e)
+        {
+            Init();
+
+            text_Raw_Json.Text = JsonHelper.FormatJson(jee.Entities.EqLogics.InnerJson);
+            tree_Json.Nodes.Clear();
+            tree_Objects.Nodes.Clear();
+
+            tree_Json.Nodes.Add(JsonHelper.Json2Tree(JObject.Parse(jee.Entities.EqLogics.InnerJson)));
+            tree_Objects.Nodes.Add(ObjectHelper.CreateTree(jee.Entities.EqLogics));
+        }
+
+        private void button_Get_Commands_Click(object sender, EventArgs e)
+        {
+            Init();
+
+            text_Raw_Json.Text = JsonHelper.FormatJson(jee.Entities.Commands.InnerJson);
+            tree_Json.Nodes.Clear();
+            tree_Objects.Nodes.Clear();
+
+            tree_Json.Nodes.Add(JsonHelper.Json2Tree(JObject.Parse(jee.Entities.Commands.InnerJson)));
+            tree_Objects.Nodes.Add(ObjectHelper.CreateTree(jee.Entities.Commands));
+        }
+
+        private void button_Refresh_Entities_Click(object sender, EventArgs e)
+        {
+            text_Raw_Json.Text = "";
+
+            jee.Entities.Refresh();
         }
     }
 }

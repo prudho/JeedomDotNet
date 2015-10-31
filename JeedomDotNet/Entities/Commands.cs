@@ -4,23 +4,41 @@ using System.Collections.Generic;
 
 namespace JeedomDotNet.Entities
 {
-    public class Commands : List<Command>
+    public class Commands : List<Command>, IEntitiesCollection
     {
         private Jeedom _jee;
+        private JeedomEntities _entities;
 
-        public Commands(Jeedom jee)
+        private string _innerJson;
+        private bool _loaded;
+        private string _error;
+
+        public bool Loaded { get { return _loaded; } }
+        public string Error { get { return _error; } }
+        public string InnerJson { get { return this._innerJson; } }
+
+        public Commands(Jeedom jee, JeedomEntities entities)
         {
-            this._jee = jee;
+            _jee = jee;
+            _entities = entities;
+
+            Load();
         }
 
         public void Load()
         {
-            this.Clear();
+            Clear();
 
-            Core.RPCCommand rpc = new Core.RPCCommand(this._jee, "cmd::all");
+            _error = string.Empty;
 
-            if (rpc.Send())
+            Core.RPCCommand rpc = new Core.RPCCommand(_jee, "cmd::all");
+
+            bool result = rpc.Execute();
+
+            if (result)
             {
+                _innerJson = rpc.Response;
+
                 JObject googleSearch = JObject.Parse(rpc.Response);
 
                 IEnumerable<JToken> results = googleSearch["result"].Children();
@@ -28,16 +46,25 @@ namespace JeedomDotNet.Entities
                 foreach (JToken res in results)
                 {
                     Command searchResult = JsonConvert.DeserializeObject<Command>(res.ToString());
-                    this.Add(searchResult);
+
+                    searchResult.BaseCollection = _entities.EqLogics;
+
+                    Add(searchResult);
                 }
             }
+            else
+            {
+                _error = rpc.Error;
+            }
+
+            _loaded = result;
         }
 
         public Command Get(int id)
         {
-            this.Load();
+            Load();
 
-            return this.Find(x => x.id == id.ToString());
+            return Find(x => x.ID == id);
         }
     }
 }

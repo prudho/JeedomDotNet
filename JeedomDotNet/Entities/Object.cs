@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using JeedomDotNet;
 
 namespace JeedomDotNet.Entities
 {
@@ -16,5 +17,21 @@ namespace JeedomDotNet.Entities
         [JsonProperty(PropertyName = "isVisible")]
         [JsonConverter(typeof(Tools.BoolConverter))]
         public bool Visible { get; set; }
+
+        public Object Parent { get { return getParent(); } }
+
+        internal Objects BaseCollection;
+
+        private Object getParent()
+        {
+            if (Parent_ID != null)
+            {
+                return BaseCollection.Find(x => x.ID == Parent_ID);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
