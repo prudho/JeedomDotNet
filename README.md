@@ -59,13 +59,6 @@ foreach (JeedomDotNet.Entities.Object obj in jee.Entities.Objects)
 }
 ```
 
-Display the name of all Jeedom objects:
-```csharp
-foreach (JeedomDotNet.Entities.Object obj in jee.Entities.Objects)
-{
-	Console.Out.WriteLine(obj.Name);
-}
-```
 Display the parent object name of all Jeedom eqlogics:
 ```csharp
 foreach (JeedomDotNet.Entities.EqLogic eq in jee.Entities.EqLogics)
