@@ -44,7 +44,10 @@ Jeedom jee = new Jeedom("jeedom.example.com", 8000, "/jeedom", "your.API.key", f
 ```
 
 ## Examples
-*All examples assume you have already wrote the lines above, insert code under the line **// Jeedom OK ! Do something here...** *
+*All examples assume you have already wrote the lines above. Code must be inserted under this line :*
+```csharp
+// Jeedom OK ! Do something here...
+```
 
 Get the Jeedom version:
 ```csharp
