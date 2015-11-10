@@ -86,13 +86,14 @@ namespace JeedomDotNet.Core
             HttpWebRequest request = (HttpWebRequest)asynchronousResult.AsyncState;
 
             // End the operation
-            Stream postStream = request.EndGetRequestStream(asynchronousResult);
+            using (Stream postStream = request.EndGetRequestStream(asynchronousResult))
+            {
+                // Convert the string into a byte array.
+                byte[] byteArray = Encoding.UTF8.GetBytes(_query);
 
-            // Convert the string into a byte array.
-            byte[] byteArray = Encoding.UTF8.GetBytes(_query);
-
-            // Write to the request stream.
-            postStream.Write(byteArray, 0, byteArray.Length);
+                // Write to the request stream.
+                postStream.Write(byteArray, 0, byteArray.Length);
+            }
 
             // Start the asynchronous operation to get the response
             request.BeginGetResponse(new AsyncCallback(GetResponseCallback), request);
