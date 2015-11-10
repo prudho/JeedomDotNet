@@ -132,5 +132,17 @@ namespace JeedomTester
 
             jee.Entities.Refresh();
         }
+
+        private void button_Get_Scenarios_Click(object sender, EventArgs e)
+        {
+            Init();
+
+            text_Raw_Json.Text = JsonHelper.FormatJson(jee.Entities.Scenarios.InnerJson);
+            tree_Json.Nodes.Clear();
+            tree_Objects.Nodes.Clear();
+
+            tree_Json.Nodes.Add(JsonHelper.Json2Tree(JObject.Parse(jee.Entities.Scenarios.InnerJson)));
+            tree_Objects.Nodes.Add(ObjectHelper.CreateTree(jee.Entities.Scenarios));
+        }
     }
 }

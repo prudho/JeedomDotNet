@@ -14,6 +14,7 @@ namespace JeedomDotNet
         public Messages Messages { get { return _messages; } }
         public EqLogics EqLogics { get { return _eqLogics; }}
         public Objects Objects { get { return _objects; } }
+        public Scenarios Scenarios { get { return _scenarios; } }
 
         public bool Loaded { get { return this._loaded; } }
 
@@ -24,6 +25,7 @@ namespace JeedomDotNet
         private Messages _messages;
         private EqLogics _eqLogics;
         private Objects _objects;
+        private Scenarios _scenarios;
 
         private Jeedom _jee;
 
@@ -55,18 +57,27 @@ namespace JeedomDotNet
 
                         if (_plugins.Loaded)
                         {
-                            _messages = new Messages(_jee);
+                            _scenarios = new Scenarios(_jee);
 
-                            if (_messages.Loaded)
+                            if (_scenarios.Loaded)
                             {
-                                _loaded = true;
+                                _messages = new Messages(_jee);
+
+                                if (_messages.Loaded)
+                                {
+                                    _loaded = true;
+                                }
+                                else
+                                {
+                                    _error = _scenarios.Error;
+                                    _loaded = false;
+                                }
                             }
                             else
                             {
                                 _error = _messages.Error;
                                 _loaded = false;
                             }
-
                         }
                         else
                         {

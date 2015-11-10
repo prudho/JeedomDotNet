@@ -53,6 +53,7 @@
             this.button_Get_Commands = new System.Windows.Forms.Button();
             this.entitiesGroupBox = new System.Windows.Forms.GroupBox();
             this.button_Refresh_Entities = new System.Windows.Forms.Button();
+            this.button_Get_Scenarios = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -293,6 +294,7 @@
             // 
             // entitiesGroupBox
             // 
+            this.entitiesGroupBox.Controls.Add(this.button_Get_Scenarios);
             this.entitiesGroupBox.Controls.Add(this.button_Refresh_Entities);
             this.entitiesGroupBox.Controls.Add(this.button_Get_Objects);
             this.entitiesGroupBox.Controls.Add(this.button_Get_Commands);
@@ -316,6 +318,16 @@
             this.button_Refresh_Entities.Text = "Refresh";
             this.button_Refresh_Entities.UseVisualStyleBackColor = true;
             this.button_Refresh_Entities.Click += new System.EventHandler(this.button_Refresh_Entities_Click);
+            // 
+            // button_Get_Scenarios
+            // 
+            this.button_Get_Scenarios.Location = new System.Drawing.Point(115, 48);
+            this.button_Get_Scenarios.Name = "button_Get_Scenarios";
+            this.button_Get_Scenarios.Size = new System.Drawing.Size(103, 23);
+            this.button_Get_Scenarios.TabIndex = 8;
+            this.button_Get_Scenarios.Text = "Get scenarios";
+            this.button_Get_Scenarios.UseVisualStyleBackColor = true;
+            this.button_Get_Scenarios.Click += new System.EventHandler(this.button_Get_Scenarios_Click);
             // 
             // JeedomTester
             // 
@@ -366,6 +378,7 @@
         private System.Windows.Forms.Button button_Get_Commands;
         private System.Windows.Forms.GroupBox entitiesGroupBox;
         private System.Windows.Forms.Button button_Refresh_Entities;
+        private System.Windows.Forms.Button button_Get_Scenarios;
     }
 }
 

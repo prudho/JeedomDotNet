@@ -54,6 +54,8 @@
     <Compile Include="Entities\EqLogic.cs" />
     <Compile Include="Entities\EqLogics.cs" />
     <Compile Include="Entities\IEntitiesCollection.cs" />
+    <Compile Include="Entities\Scenario.cs" />
+    <Compile Include="Entities\Scenarios.cs" />
     <Compile Include="Jeedom.cs" />
     <Compile Include="Tools\HttpBuildQueryHelper.cs" />
     <Compile Include="Entities\Message.cs" />
